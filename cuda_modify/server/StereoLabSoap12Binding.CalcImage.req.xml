@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SOAP-ENV:Envelope
+  xmlns:SOAP-ENV="http://www.w3.org/2003/05/soap-envelope"
+  xmlns:SOAP-ENC="http://www.w3.org/2003/05/soap-encoding"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:ns1="http://www.ws4d.org/axis2/tutorial/StereoLab">
+ <SOAP-ENV:Body>
+   <ns1:CalcImage>
+    <ns1:leftImage>0</ns1:leftImage>
+    <ns1:leftImage>0</ns1:leftImage>
+    <ns1:rightImage>0</ns1:rightImage>
+    <ns1:rightImage>0</ns1:rightImage>
+    <ns1:columns>0</ns1:columns>
+    <ns1:rows>0</ns1:rows>
+    <ns1:b>0</ns1:b>
+    <ns1:h>0</ns1:h>
+    <ns1:tauMax>0</ns1:tauMax>
+    <ns1:useS>false</ns1:useS>
+    <ns1:useF>false</ns1:useF>
+    <ns1:s>0</ns1:s>
+   </ns1:CalcImage>
+
+ </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

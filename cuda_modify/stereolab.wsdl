@@ -1,0 +1,72 @@
+<wsdl:definitions
+	targetNamespace="http://www.ws4d.org/axis2/tutorial/StereoLab"
+	xmlns:tns="http://www.ws4d.org/axis2/tutorial/StereoLab"
+	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:wsoap12="http://schemas.xmlsoap.org/wsdl/soap12/">
+
+	<wsdl:types>
+		<xs:schema
+			targetNamespace="http://www.ws4d.org/axis2/tutorial/StereoLab"
+			xmlns:tns="http://www.ws4d.org/axis2/tutorial/StereoLab"
+			xmlns:xs="http://www.w3.org/2001/XMLSchema"
+			elementFormDefault="qualified" blockDefault="#all">
+			<xs:complexType name="CalcImageResult">
+				<xs:sequence>
+					<xs:element name="profile" type="xs:int" minOccurs="1" maxOccurs="unbounded" />
+					<xs:element name="valid" type="xs:boolean" minOccurs="1" maxOccurs="unbounded" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="CalcImageParams">
+				<xs:sequence>
+					<xs:element name="leftImage" type="xs:byte" minOccurs="1" maxOccurs="unbounded" />
+					<xs:element name="rightImage" type="xs:byte" minOccurs="1" maxOccurs="unbounded" />
+					<xs:element name="columns" type="xs:int" />
+					<xs:element name="rows" type="xs:int" />
+					<xs:element name="b" type="xs:int" />
+					<xs:element name="h" type="xs:int" />
+					<xs:element name="tauMax" type="xs:int" />
+					<xs:element name="useS" type="xs:boolean" />
+					<xs:element name="useF" type="xs:boolean" />
+					<xs:element name="s" type="xs:int" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:element name="CalcImage" type="tns:CalcImageParams" />
+			<xs:element name="CalcImageReturn" type="tns:CalcImageResult" />
+		</xs:schema>
+	</wsdl:types>
+
+	<wsdl:message name="CalcImageMessageOut">
+		<wsdl:part name="parameters" element="tns:CalcImageReturn" />
+	</wsdl:message>
+	<wsdl:message name="CalcImageMessageIn">
+		<wsdl:part name="parameters" element="tns:CalcImage" />
+	</wsdl:message>
+
+	<wsdl:portType name="StereoLab">
+		<wsdl:operation name="CalcImage">
+			<wsdl:input message="tns:CalcImageMessageIn"  />
+			<wsdl:output message="tns:CalcImageMessageOut"  />
+		</wsdl:operation>
+	</wsdl:portType>
+
+	<wsdl:binding name="StereoLabSoap12Binding" type="tns:StereoLab">
+		<wsoap12:binding style="document"
+			transport="http://schemas.xmlsoap.org/soap/http" />
+		<wsdl:operation name="CalcImage">
+			<wsoap12:operation />
+			<wsdl:input>
+				<wsoap12:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<wsoap12:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+
+	<wsdl:service name="StereoLabService">
+		<wsdl:port name="StereoLabPort" binding="tns:StereoLabSoap12Binding">
+			<wsoap12:address location="http://localhost:10000/StereoLab" />
+		</wsdl:port>
+	</wsdl:service>
+
+</wsdl:definitions>
