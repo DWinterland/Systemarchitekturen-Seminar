@@ -160,28 +160,6 @@ void callServer(struct callParams *params) {
 
 	freeaddrinfo(servinfo); // all done with this structure
     
-    //~ while(1) {
-        //~ char str[100];
-        //~ memset(&str,0,100);
-        //~ fgets(str,100,stdin);
-        
-        //~ char* checkedStr= checkStr(str);
-        //~ if(checkedStr=="-1"){
-            //~ printf("Wrong Input\n");
-            //~ continue;
-        //~ }
-        //~ //getc(stdin);
-        //~ printf("sending: %s",checkedStr);
-        //~ send(sockfd, checkedStr, strlen(checkedStr), 0);
-        //~ //send(sockfd, str, strlen(str), 0);
-        //~ if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
-            //~ perror("recv");
-        //~ }
-        //~ buf[numbytes] = '\0';
-
-        //~ printf("client: received '%s'\n",buf);
-    //~ }
-    
     img_header header;	
     header.zeilen = params->params.rows;
 	header.spalten = params->params.columns;
@@ -194,99 +172,9 @@ void callServer(struct callParams *params) {
     sendAllTCP(sockfd, params->params.leftImage, header.zeilen*header.spalten*sizeof(char));
     sendAllTCP(sockfd, params->params.rightImage, header.zeilen*header.spalten*sizeof(char));
     
-	//~ int send_byte_number = 0;
-	//~ printf("bytes to send %d\n", header.zeilen * header.spalten * sizeof(char));
-	//~ while(send_byte_number < header.zeilen * header.spalten * sizeof(char)) 
-	//~ {
-		//~ send_byte_number = send_byte_number + send(sockfd, (params->params.leftImage + send_byte_number), header.zeilen * header.spalten * sizeof(char) - send_byte_number, 0);
-		//~ printf("send %d\n", send_byte_number);
-	//~ }
-	//~ printf("send left image successfully\n", send_byte_number);
-	
-	//~ send_byte_number = 0;
-	//~ printf("bytes to send %d\n", header.zeilen * header.spalten * sizeof(char));
-	//~ while(send_byte_number < header.zeilen * header.spalten * sizeof(char)) 
-	//~ {
-		//~ send_byte_number = send_byte_number + send(sockfd, (params->params.rightImage + send_byte_number), header.zeilen * header.spalten * sizeof(char) - send_byte_number, 0);
-		//~ printf("send %d\n", send_byte_number);
-	//~ }
-	//~ printf("send right image successfully\n", send_byte_number);
-	
-	//send(sockfd, params->params.rightImage, sizeof(header.zeilen * header.spalten) * sizeof(char), 0);
-	
-	//~ int reclen = 0;
-	
-	//~ if ((reclen = recv(sockfd, params->profile, sizeof(header.zeilen * header.spalten) * sizeof(int), 0)) == -1) {
-		//~ perror("recv");
-		//~ exit(1);
-	//~ }
-	//~ printf("Got profile %d\n", reclen);
-	
-	//~ if ((reclen = recv(sockfd, params->valid, sizeof(header.zeilen * header.spalten) * sizeof(bool), 0)) == -1) {
-		//~ perror("recv");
-		//~ exit(1);
-	//~ }
-	//~ printf("Got valid %d\n", reclen);
-	//memset(params->valid, sizeof(header.zeilen * header.spalten) * sizeof(bool), 0xFF);
-
-/*	int rec_byte_number = 0;
-	int rec_overall = 0;
-	char* curDataPointer = (char*)params->profile;
-	
-	printf("bytes to receive %d\n", header.zeilen * header.spalten * sizeof(int));
-	while((rec_byte_number = recv(sockfd, params->profile, (header.zeilen * header.spalten * sizeof(int)) - rec_overall, 0)) > 0) {
-		curDataPointer=curDataPointer + rec_byte_number;
-		rec_overall = rec_overall + rec_byte_number;
-		printf("Got %d\n", rec_byte_number);
-	}
-	printf("Got profile image %d\n", rec_overall);
-	
-	rec_byte_number = 0;
-	rec_overall = 0;
-	curDataPointer = (char*)params->valid;
-	
-	while((((header.zeilen * header.spalten * sizeof(char)) - rec_overall) > 0) && (rec_byte_number = recv(sockfd, curDataPointer, (header.zeilen * header.spalten * sizeof(char)) - rec_overall, 0)) > 0 ) {
-		curDataPointer=curDataPointer + rec_byte_number;
-		rec_overall = rec_overall + rec_byte_number;
-		printf("Got %d\n", rec_byte_number);
-	}
-	printf("Got valid image %d\n", rec_overall);*/
-	//~ for(int x = 0; x < header.zeilen; x++) {
-		//~ for(int y = 0; y < header.spalten; y++) {
-			//~ params->profile[x * header.spalten + y] = params->params.leftImage[x * header.spalten + y];
-		//~ }
-	//~ }
-			//memset(params->valid, 0xFF, header.zeilen * header.spalten * sizeof(char));
-			
-			
     receiveAll(sockfd, (char*)params->profile, header.zeilen*header.spalten*sizeof(int));
     receiveAll(sockfd, (char*)params->valid, header.zeilen*header.spalten*sizeof(char));
 	close(sockfd);
-/*        printf("Calling server %s...\n", params->server_address);
-
-	struct soap soap;
-	soap_init(&soap);
-
-        if (soap_call___ns1__CalcImage(&soap, params->server_address, "", &(params->params), &(params->ret)) != SOAP_OK) {
-	    soap_print_fault(&soap, stderr);
-	} else {
-
-        if (params->ret.__sizevalid == params->params.rows * params->params.columns)
-    	    memcpy(params->valid, params->ret.valid,params->ret.__sizevalid*sizeof(bool));
-    	else
-    	    fprintf(stderr, "Bad size of valid array: %i\n", params->ret.__sizevalid);
-
-        if (params->ret.__sizeprofile == params->params.rows * params->params.columns)
-    	    memcpy(params->profile, params->ret.profile, params->ret.__sizeprofile*sizeof(int));
-    	else
-    	    fprintf(stderr, "Bad size of profile array: %i\n", params->ret.__sizeprofile);
-
-	}
-	
-        // clean up
-        soap_destroy(&soap);
-        soap_end(&soap);
-        soap_done(&soap);*/
 }
 
 

@@ -161,125 +161,33 @@ int main(int argc, char *argv[])
 
 		if (!fork()) { // this is the child process
 			close(sockfd); // child doesn't need the listener
-			
-            //~ while(1) {
-                //~ /*char in_buf[MSG_BUF_SIZE];
-                //~ char out_buf[MSG_BUF_SIZE];
-                //~ memset(&in_buf,0,MSG_BUF_SIZE);
-                //~ memset(&out_buf,0,MSG_BUF_SIZE);*/#
-                //~ img_header in_header;
-                
-                //~ if (recv(new_fd, &in_header, sizeof(in_header), 0) == -1) {
-                    //~ perror("recv");
-                    //~ exit(1);
-                //~ }
-                //~ printf("%d\n", in_header.zeilen);
-                //~ printf("%d\n", in_header.spalten);
-                //~ printf("%d\n", in_header.tau);
-                //~ printf("%d\n", in_header.fenster_breite);
-                //~ printf("%d\n", in_header.fenster_hoehe);
-                //~ //parse(in_buf, out_buf);
-				//~ //doCUDACalc((signed char*)p->leftImage, (signed char*)p->rightImage, p->rows, p->columns,p->tauMax, r->profile, (unsigned char*)r->valid, p->b, p->h, p->useS, p->useF, p->s);
-                //~ /*if (send(new_fd, out_buf, strlen(out_buf), 0) == -1) {
-                    //~ perror("send");
-                    //~ exit(1);
-                //~ }*/
-            //~ }
 			img_header header;
 			
 			if (recv(new_fd, &header, sizeof(header), 0) == -1) {
 				perror("recv");
 				exit(1);
 			}
-			printf("%d\n", header.zeilen);
-			printf("%d\n", header.spalten);
-			printf("%d\n", header.tau);
-			printf("%d\n", header.fenster_breite);
-			printf("%d\n", header.fenster_hoehe);
 			
 			char* leftImage = (char*)malloc(header.zeilen * header.spalten * sizeof(char));
 			char* rightImage = (char*)malloc(header.zeilen * header.spalten * sizeof(char));
 			
 			int* profile = (int*)malloc(header.zeilen * header.spalten * sizeof(int));
 			char* valid = (char*)malloc(header.zeilen * header.spalten * sizeof(char));
-			int rec_byte_number = 0;
-			int rec_overall = 0;
-			char* curImagePointer = leftImage;
-			
-			//printf("%d\n", sizeof(char));
 			
 			int imgsize = header.zeilen * header.spalten * sizeof(char);
 			receiveAll(new_fd, leftImage, imgsize);
 			printf("Got left image %d\n", imgsize);
 			receiveAll(new_fd, rightImage, imgsize);
 			printf("Got right image %d\n", imgsize);
-			
-			//~ printf("bytes to receive %d\n", header.zeilen * header.spalten * sizeof(char));
-			//~ while((rec_byte_number = recv(new_fd, curImagePointer, (header.zeilen * header.spalten * sizeof(char)) - rec_overall, 0)) > 0) {
-				//~ curImagePointer=curImagePointer + rec_byte_number;
-				//~ rec_overall = rec_overall + rec_byte_number;
-				//~ printf("Got %d\n", rec_byte_number);
-			//~ }
-			//~ printf("Got left image %d\n", rec_overall);
-			
-			
-			//~ rec_byte_number = 0;
-			//~ rec_overall = 0;
-			//~ curImagePointer = rightImage;
-			//~ printf("bytes to receive %d\n", header.zeilen * header.spalten * sizeof(char));
-			//~ /*while((rec_byte_number = recv(new_fd, curImagePointer, (header.zeilen * header.spalten * sizeof(char)) - rec_overall, 0)) > 0 && ((header.zeilen * header.spalten * sizeof(char)) - rec_overall) > 0) {
-				//~ curImagePointer=curImagePointer + rec_byte_number;
-				//~ rec_overall = rec_overall + rec_byte_number;
-				//~ printf("Got %d\n", rec_byte_number);
-			//~ }*/			
-			//~ //while((((header.zeilen * header.spalten * sizeof(char)) - rec_overall) > 0) && (rec_byte_number = recv(new_fd, curImagePointer, (header.zeilen * header.spalten * sizeof(char)) - rec_overall, 0)) > 0 ) {
-			//~ while((rec_byte_number = recv(new_fd, curImagePointer, (header.zeilen * header.spalten * sizeof(char)) - rec_overall, 0)) > 0 ) {
-				//~ curImagePointer=curImagePointer + rec_byte_number;
-				//~ rec_overall = rec_overall + rec_byte_number;
-				//~ printf("Got %d\n", rec_byte_number);
-			//~ }
-			//~ printf("Got right image %d\n", rec_overall);
-				
-			printf("GOT EVERYTHING YAY \n");
+			printf("Received both images \n");
 			
 			doCUDACalc((signed char*)leftImage, (signed char*)rightImage, header.zeilen, header.spalten,header.tau, profile, (unsigned char*)valid, header.fenster_breite, header.fenster_hoehe, 0, 0, 0);
 			
-			/*if (send(new_fd, &profile, sizeof(header.zeilen * header.spalten) * sizeof(int), 0) == -1) {
-				perror("send");
-				exit(1);
-			}
-			printf("send profile \n");
-			
-			if (send(new_fd, &valid, sizeof(header.zeilen * header.spalten) * sizeof(char), 0) == -1) {
-				perror("send");
-				exit(1);
-			}
-			printf("send valid \n");*/
-			/*
-			int send_byte_number = 0;
-			char* curDataPointer = (char*)profile;
-			printf("bytes to send %d\n", header.zeilen * header.spalten * sizeof(int));
-			while(send_byte_number < header.zeilen * header.spalten * sizeof(int)) 
-			{
-				send_byte_number = send_byte_number + send(new_fd, (curDataPointer + send_byte_number), header.zeilen * header.spalten * sizeof(int) - send_byte_number, 0);
-				if(send_byte_number == -1) perror("send");
-				printf("send %d\n", send_byte_number);
-			}
-			printf("send profile image successfully\n", send_byte_number);
-			
-			send_byte_number = 0;
-			printf("bytes to send %d\n", header.zeilen * header.spalten * sizeof(char));
-			while(send_byte_number < header.zeilen * header.spalten * sizeof(char)) 
-			{
-				send_byte_number = send_byte_number + send(new_fd, (valid + send_byte_number), header.zeilen * header.spalten * sizeof(char) - send_byte_number, 0);
-				printf("send %d\n", send_byte_number);
-			}
-			printf("send valid image successfully\n", send_byte_number);
-					*/
-					
 			int ret_imgsize = header.zeilen * header.spalten * sizeof(int);
 			sendAllTCP(new_fd, (char*)profile, ret_imgsize);
 			sendAllTCP(new_fd, (char*)valid, imgsize);
+			printf("Send results \n");
+			
 			close(new_fd);
 			exit(0);
 		}	
@@ -289,42 +197,10 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
+
+//this just stays here to prevent compile errors
 #include "soapH.h"
 #include "StereoLabSoap12Binding.nsmap"
-//~ #include "kernel.h"
-
-//~ // TCP Port number
-//~ #define PORT 10000
-
-//~ int main(int argc, char **argv)
-//~ {
-  //~ SOAP_SOCKET m, s; /* master and slave sockets */
-  //~ struct soap soap;
-  //~ soap_init(&soap);
-
-  //~ m = soap_bind(&soap, NULL, PORT, 100);
-    //~ if (!soap_valid_socket(m))
-    //~ {
-      //~ soap_print_fault(&soap, stderr);
-      //~ exit(-1);
-    //~ }
-    //~ fprintf(stderr, "Socket connection successful: master socket = %d\n", m);
-    //~ for ( ; ; )
-    //~ {
-      //~ fprintf(stdout, "Waiting for client\n");
-      //~ s = soap_accept(&soap);
-      //~ fprintf(stderr, "Socket connection successful: slave socket = %d\n", s);
-      //~ if (!soap_valid_socket(s))
-      //~ {
-        //~ soap_print_fault(&soap, stderr);
-        //~ exit(-1);
-      //~ } 
-      //~ soap_serve(&soap);
-      //~ soap_end(&soap);
-    //~ }
-
-  //~ return 0;
-//~ } 
 
 int __ns1__CalcImage(struct soap *soap, struct ns1__CalcImageParams *p, struct ns1__CalcImageResult *r)
 {
