@@ -51,6 +51,30 @@ void *get_in_addr(struct sockaddr *sa)
 	return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
+void sendAllTCP(int socket, char* dataBuf, int size) {
+	
+	int send_bytes = 0;
+	//printf("bytes to send %d\n", size);
+	while(send_bytes < size) 
+	{
+		send_bytes += send(socket, &dataBuf[send_bytes], size - send_bytes, 0);
+		//printf("send %d\n", send_byte_number);
+	}
+	//printf("send successfully\n", send_byte_number);
+}	
+
+void receiveAll(int socket, char* dataBuf, int size) {
+	
+	int rec_bytes = 0;
+	//printf("bytes to send %d\n", header.zeilen * header.spalten * sizeof(char));
+	while(rec_bytes < size) 
+	{
+		rec_bytes += recv(socket, &dataBuf[rec_bytes], size - rec_bytes, 0);
+		//printf("send %d\n", send_byte_number);
+	}
+	//printf("send successfully\n", send_byte_number);
+}	
+
 int main(int argc, char *argv[])
 {
 	int sockfd, new_fd;  // listen on sock_fd, new connection on new_fd
@@ -184,31 +208,37 @@ int main(int argc, char *argv[])
 			
 			//printf("%d\n", sizeof(char));
 			
-			printf("bytes to receive %d\n", header.zeilen * header.spalten * sizeof(char));
-			while((rec_byte_number = recv(new_fd, curImagePointer, (header.zeilen * header.spalten * sizeof(char)) - rec_overall, 0)) > 0) {
-				curImagePointer=curImagePointer + rec_byte_number;
-				rec_overall = rec_overall + rec_byte_number;
-				printf("Got %d\n", rec_byte_number);
-			}
-			printf("Got left image %d\n", rec_overall);
+			int imgsize = header.zeilen * header.spalten * sizeof(char);
+			receiveAll(new_fd, leftImage, imgsize);
+			printf("Got left image %d\n", imgsize);
+			receiveAll(new_fd, rightImage, imgsize);
+			printf("Got right image %d\n", imgsize);
+			
+			//~ printf("bytes to receive %d\n", header.zeilen * header.spalten * sizeof(char));
+			//~ while((rec_byte_number = recv(new_fd, curImagePointer, (header.zeilen * header.spalten * sizeof(char)) - rec_overall, 0)) > 0) {
+				//~ curImagePointer=curImagePointer + rec_byte_number;
+				//~ rec_overall = rec_overall + rec_byte_number;
+				//~ printf("Got %d\n", rec_byte_number);
+			//~ }
+			//~ printf("Got left image %d\n", rec_overall);
 			
 			
-			rec_byte_number = 0;
-			rec_overall = 0;
-			curImagePointer = rightImage;
-			printf("bytes to receive %d\n", header.zeilen * header.spalten * sizeof(char));
-			/*while((rec_byte_number = recv(new_fd, curImagePointer, (header.zeilen * header.spalten * sizeof(char)) - rec_overall, 0)) > 0 && ((header.zeilen * header.spalten * sizeof(char)) - rec_overall) > 0) {
-				curImagePointer=curImagePointer + rec_byte_number;
-				rec_overall = rec_overall + rec_byte_number;
-				printf("Got %d\n", rec_byte_number);
-			}*/			
-			//while((((header.zeilen * header.spalten * sizeof(char)) - rec_overall) > 0) && (rec_byte_number = recv(new_fd, curImagePointer, (header.zeilen * header.spalten * sizeof(char)) - rec_overall, 0)) > 0 ) {
-			while((rec_byte_number = recv(new_fd, curImagePointer, (header.zeilen * header.spalten * sizeof(char)) - rec_overall, 0)) > 0 ) {
-				curImagePointer=curImagePointer + rec_byte_number;
-				rec_overall = rec_overall + rec_byte_number;
-				printf("Got %d\n", rec_byte_number);
-			}
-			printf("Got right image %d\n", rec_overall);
+			//~ rec_byte_number = 0;
+			//~ rec_overall = 0;
+			//~ curImagePointer = rightImage;
+			//~ printf("bytes to receive %d\n", header.zeilen * header.spalten * sizeof(char));
+			//~ /*while((rec_byte_number = recv(new_fd, curImagePointer, (header.zeilen * header.spalten * sizeof(char)) - rec_overall, 0)) > 0 && ((header.zeilen * header.spalten * sizeof(char)) - rec_overall) > 0) {
+				//~ curImagePointer=curImagePointer + rec_byte_number;
+				//~ rec_overall = rec_overall + rec_byte_number;
+				//~ printf("Got %d\n", rec_byte_number);
+			//~ }*/			
+			//~ //while((((header.zeilen * header.spalten * sizeof(char)) - rec_overall) > 0) && (rec_byte_number = recv(new_fd, curImagePointer, (header.zeilen * header.spalten * sizeof(char)) - rec_overall, 0)) > 0 ) {
+			//~ while((rec_byte_number = recv(new_fd, curImagePointer, (header.zeilen * header.spalten * sizeof(char)) - rec_overall, 0)) > 0 ) {
+				//~ curImagePointer=curImagePointer + rec_byte_number;
+				//~ rec_overall = rec_overall + rec_byte_number;
+				//~ printf("Got %d\n", rec_byte_number);
+			//~ }
+			//~ printf("Got right image %d\n", rec_overall);
 				
 			printf("GOT EVERYTHING YAY \n");
 			
@@ -225,7 +255,7 @@ int main(int argc, char *argv[])
 				exit(1);
 			}
 			printf("send valid \n");*/
-			
+			/*
 			int send_byte_number = 0;
 			char* curDataPointer = (char*)profile;
 			printf("bytes to send %d\n", header.zeilen * header.spalten * sizeof(int));
@@ -245,7 +275,11 @@ int main(int argc, char *argv[])
 				printf("send %d\n", send_byte_number);
 			}
 			printf("send valid image successfully\n", send_byte_number);
+					*/
 					
+			int ret_imgsize = header.zeilen * header.spalten * sizeof(int);
+			sendAllTCP(new_fd, (char*)profile, ret_imgsize);
+			sendAllTCP(new_fd, (char*)valid, imgsize);
 			close(new_fd);
 			exit(0);
 		}	
@@ -319,4 +353,5 @@ int __ns1__CalcImage(struct soap *soap, struct ns1__CalcImageParams *p, struct n
     
     return SOAP_OK;
 }
+
 

@@ -91,6 +91,30 @@ void *get_in_addr(struct sockaddr *sa)
     
 }
 
+void sendAllTCP(int socket, char* dataBuf, int size) {
+	
+	int send_bytes = 0;
+	//printf("bytes to send %d\n", size);
+	while(send_bytes < size) 
+	{
+		send_bytes += send(socket, &dataBuf[send_bytes], size - send_bytes, 0);
+		//printf("send %d\n", send_byte_number);
+	}
+	//printf("send successfully\n", send_byte_number);
+}	
+
+void receiveAll(int socket, char* dataBuf, int size) {
+	
+	int rec_bytes = 0;
+	//printf("bytes to send %d\n", header.zeilen * header.spalten * sizeof(char));
+	while(rec_bytes < size) 
+	{
+		rec_bytes += recv(socket, &dataBuf[rec_bytes], size - rec_bytes, 0);
+		//printf("send %d\n", send_byte_number);
+	}
+	//printf("send successfully\n", send_byte_number);
+}	
+
 void callServer(struct callParams *params) {
 	
 	int sockfd, numbytes;  
@@ -167,23 +191,26 @@ void callServer(struct callParams *params) {
     
 	send(sockfd, &header, sizeof(header), 0);
     
-	int send_byte_number = 0;
-	printf("bytes to send %d\n", header.zeilen * header.spalten * sizeof(char));
-	while(send_byte_number < header.zeilen * header.spalten * sizeof(char)) 
-	{
-		send_byte_number = send_byte_number + send(sockfd, (params->params.leftImage + send_byte_number), header.zeilen * header.spalten * sizeof(char) - send_byte_number, 0);
-		printf("send %d\n", send_byte_number);
-	}
-	printf("send left image successfully\n", send_byte_number);
+    sendAllTCP(sockfd, params->params.leftImage, header.zeilen*header.spalten*sizeof(char));
+    sendAllTCP(sockfd, params->params.rightImage, header.zeilen*header.spalten*sizeof(char));
+    
+	//~ int send_byte_number = 0;
+	//~ printf("bytes to send %d\n", header.zeilen * header.spalten * sizeof(char));
+	//~ while(send_byte_number < header.zeilen * header.spalten * sizeof(char)) 
+	//~ {
+		//~ send_byte_number = send_byte_number + send(sockfd, (params->params.leftImage + send_byte_number), header.zeilen * header.spalten * sizeof(char) - send_byte_number, 0);
+		//~ printf("send %d\n", send_byte_number);
+	//~ }
+	//~ printf("send left image successfully\n", send_byte_number);
 	
-	send_byte_number = 0;
-	printf("bytes to send %d\n", header.zeilen * header.spalten * sizeof(char));
-	while(send_byte_number < header.zeilen * header.spalten * sizeof(char)) 
-	{
-		send_byte_number = send_byte_number + send(sockfd, (params->params.rightImage + send_byte_number), header.zeilen * header.spalten * sizeof(char) - send_byte_number, 0);
-		printf("send %d\n", send_byte_number);
-	}
-	printf("send right image successfully\n", send_byte_number);
+	//~ send_byte_number = 0;
+	//~ printf("bytes to send %d\n", header.zeilen * header.spalten * sizeof(char));
+	//~ while(send_byte_number < header.zeilen * header.spalten * sizeof(char)) 
+	//~ {
+		//~ send_byte_number = send_byte_number + send(sockfd, (params->params.rightImage + send_byte_number), header.zeilen * header.spalten * sizeof(char) - send_byte_number, 0);
+		//~ printf("send %d\n", send_byte_number);
+	//~ }
+	//~ printf("send right image successfully\n", send_byte_number);
 	
 	//send(sockfd, params->params.rightImage, sizeof(header.zeilen * header.spalten) * sizeof(char), 0);
 	
@@ -202,7 +229,7 @@ void callServer(struct callParams *params) {
 	//~ printf("Got valid %d\n", reclen);
 	//memset(params->valid, sizeof(header.zeilen * header.spalten) * sizeof(bool), 0xFF);
 
-	int rec_byte_number = 0;
+/*	int rec_byte_number = 0;
 	int rec_overall = 0;
 	char* curDataPointer = (char*)params->profile;
 	
@@ -223,13 +250,17 @@ void callServer(struct callParams *params) {
 		rec_overall = rec_overall + rec_byte_number;
 		printf("Got %d\n", rec_byte_number);
 	}
-	printf("Got valid image %d\n", rec_overall);
+	printf("Got valid image %d\n", rec_overall);*/
 	//~ for(int x = 0; x < header.zeilen; x++) {
 		//~ for(int y = 0; y < header.spalten; y++) {
 			//~ params->profile[x * header.spalten + y] = params->params.leftImage[x * header.spalten + y];
 		//~ }
 	//~ }
 			//memset(params->valid, 0xFF, header.zeilen * header.spalten * sizeof(char));
+			
+			
+    receiveAll(sockfd, (char*)params->profile, header.zeilen*header.spalten*sizeof(int));
+    receiveAll(sockfd, (char*)params->valid, header.zeilen*header.spalten*sizeof(char));
 	close(sockfd);
 /*        printf("Calling server %s...\n", params->server_address);
 

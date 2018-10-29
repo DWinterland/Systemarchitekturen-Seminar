@@ -15,7 +15,7 @@ compiling, linking, and/or using OpenSSL is allowed.
 
 #include "soapH.h"
 
-SOAP_SOURCE_STAMP("@(#) soapC.cpp ver 2.8.16 2018-10-28 18:25:49 GMT")
+SOAP_SOURCE_STAMP("@(#) soapC.cpp ver 2.8.16 2018-10-29 13:08:55 GMT")
 
 
 #ifndef WITH_NOGLOBAL
