@@ -116,12 +116,12 @@
 % *** GRAPHICS RELATED PACKAGES ***
 %
 \ifCLASSINFOpdf
-  % \usepackage[pdftex]{graphicx}
+   \usepackage[pdftex]{graphicx}
   % declare the path(s) where your graphic files are
-  % \graphicspath{{../pdf/}{../jpeg/}}
+   \graphicspath{{pdf/}{../jpeg/}}
   % and their extensions so you won't have to specify these with
   % every instance of \includegraphics
-  % \DeclareGraphicsExtensions{.pdf,.jpeg,.png}
+   \DeclareGraphicsExtensions{.pdf,.jpeg,.png}
 \else
   % or other class option (dvipsone, dvipdf, if not using dvips). graphicx
   % will default to the driver specified in the system graphics.cfg if no
@@ -434,15 +434,22 @@ TCP Stream Sockets, Datenstruktur Beschreibung, welche Daten werden gesendet?
 % option should be used if it is desired that the figures are to be
 % displayed while in draft mode.
 %
-%\begin{figure}[!t]
-%\centering
-%\includegraphics[width=2.5in]{myfigure}
+\begin{figure}[!t]
+\centering
+\includegraphics[width=2.5in]{SocketvsCUDA.pdf}
 % where an .eps filename suffix will be assumed under latex, 
 % and a .pdf suffix will be assumed for pdflatex; or what has been declared
 % via \DeclareGraphicsExtensions.
-%\caption{Simulation results for the network.}
-%\label{fig_sim}
-%\end{figure}
+\caption{Vergleich der Socket Implemtation gegenüber dem CUDA-Algorithmus auf einer Grafikkarte.}
+\label{fig_sim}
+\end{figure}
+
+\begin{figure}[!t]
+	\centering
+	\includegraphics[width=2.5in]{SocketvsWS.pdf}
+	\caption{Vergleich der Socket Implementation gegenüber der Webservice Variante.}
+	\label{fig_sim}
+\end{figure}
 
 % Note that the IEEE typically puts floats only at the top, even when this
 % results in a large percentage of a column being occupied by floats.
