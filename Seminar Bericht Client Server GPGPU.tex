@@ -154,6 +154,8 @@
 % http://www.tug.org/applications/pdftex
 
 
+\usepackage{url}
+\usepackage[utf8]{inputenc}
 
 
 
@@ -400,17 +402,30 @@ The abstract goes here.
 
 \section{Einleitung}
 % no \IEEEPARstart
-Algorithmus mi CUDA
-SOAP hat Overhead
-Motiv für C-Sockets: weniger Overhead \\
-(Performance)-Vergleich mit aktuellem Soap Ansatz
+% „General Purpose“ Berechnungen auf GPUs (GPGPU
+Es gibt große Probleme, die bei der seriellen Berechnung langsam zu lösen sind. 
+Manche dieser Probleme lassen sich sehr gut parallelisieren, da sie aus vielen kleinen Teilproblemen bestehen. Ein Beispiel hierfür ist die Berechnung einer Disparitätenmatrix aus Stereobildern.
+Ein CPU besitzt aber nur eine begrenzte Anzahl von Kerne, um parallel zu Arbeiten. Eine GPU hingegen besitzt sehr viele Kerne, die auf Rechenoperationen ausgelegt sind. Diesen hohen Grad an Parallelität für Probleme abseits des Renderings zu nutzen, nennt sich “General Purpose“ Berechnungen auf GPUs (GPGPU).
+Compute Unified Device Architecture (CUDA) ist eine Bibiliothek die es erlaubt, auf NVIDIA GPUs eigenen, C ähnlichen Code auszuführen.
+Da aber auch die Anzahl der Kerne einer GPU begrenzt ist, ist es möglich für sehr große Probleme die Rechenleistung mehrerer GPUs zu verwenden.
+Dafür gibt es bereits eine Anwendung die einen GSoap Webservice verwendet, um die Berechnung der Disparitätenmatrix auf die einzelnen GPUs zu verteilen. Dadurch das jedem Bildpunkt ein xml-tag angefügt wird, ist die Übertragung sehr langsam.
+
+Deswegen ist das Ziel dieser Arbeit, die Serialisierung der Bilder mithilfe von nativen C Sockets durchzuführen, um den Overhead gegenüber dem Webservice zu veringern und einen tatsächlichen Geschwindigkeitsvorteil gegenüber der Standard CUDA Implementierung zu erreichen.
+
+%https://www.genivia.com/doc/soapdoc2.html#tth_sEc11.11
+%
+%Algorithmus mit CUDA
+%SOAP hat Overhead
+%Motiv für C-Sockets: weniger Overhead \\
+%(Performance)-Vergleich mit aktuellem Soap Ansatz
  
-\hfill November 24, 2018
-\section{Verwandte Arbeiten}
+%\hfill November 24, 2018
+%\section{Verwandte Arbeiten}
 
 \section{Ansatz}
 Implementiert mit nativen C-Client-Server Sockets
-nachher Rechnerverbund um Aufgabe verteilt berechenen zu k\"onnen.
+nachher Rechnerverbund um Aufgabe verteilt berechenen zu können.
+
 
 \subsection{Unterkapitel xy}
 Subsection text here.
@@ -562,9 +577,11 @@ TCP Sockets aktuell verwendet, man könnte es auch mit UDP Sockets(Datagram Sock
 % (used to reserve space for the reference number labels box)
 \begin{thebibliography}{1}
 
-\bibitem{IEEEhowto:kopka}
-H.~Kopka and P.~W. Daly, \emph{A Guide to \LaTeX}, 3rd~ed.\hskip 1em plus
-  0.5em minus 0.4em\relax Harlow, England: Addison-Wesley, 1999.
+%\bibitem{IEEEhowto:kopka}
+%H.~Kopka and P.~W. Daly, \emph{A Guide to \LaTeX}, 3rd~ed.\hskip 1em plus
+%  0.5em minus 0.4em\relax Harlow, England: Addison-Wesley, 1999.
+
+\bibitem{bl}GSOAP, \url{https://www.genivia.com/doc/soapdoc2.html#tth_sEc11.11}, 6.11.2018.
 
 \end{thebibliography}
 
