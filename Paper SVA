@@ -1,0 +1,39 @@
+Struct definieren für Byte Reihenfolge
+Server coden (TCP Socket)
+Client in Stereolib einbinden
+Files (cuda-jni.cpp) Entry Method
+
+Paper:
+3-4 Messungen(beliebig) inkl Grafik Native vs Webservices 
+
+Paper Aufbau
+Titel
+Autor1, Autorn
+
+Abstract (Keine EInleitung, sondern Mischung aus Ergebnis Teil und Zusammenfassung) betrifft es Leser, ja oder nein?
+
+1. Introduction (Einleitung) (GPGPU Framework (Cuda), für Leser, die keine Ahnung davon haben. Vorher Zeilgruppe definieren! Am Ende Ausblick auf Gliederung des Papers, nur kurz, nicht auf einzelne Kapitel eingehen.
+Länge: 1/3 bis halbe Seite
+
+2. Related Work. Nicht besonders drauf eingehene, aber evtl Paper verlinken und unsere Paper einordnen. Warum ist Paper lesenswert? 
+
+3. Approach (Ansatz) Ansatz, was wir gemacht haben. Was ist innovativ, welche Key Features?
+
+4. Implementation Implementiert auf Rechner XY mit HW XZ, Messung mit Parameter i,j und Tau z. Vergleichbarkeit der Messung herstellen und Wert ms darstellen.
+
+5. Evaluation: Untersuchung der Messung auf Performance / Speicherverbauch. Vergleich mit Ausgangsproblem/größe
+
+Abschitt 4&5 auch zusammenfassbar
+
+6. Conclusion Ehrliche Rekapitulation um Leser Anhaltspunkt für Interpretation zu geben. Future Work (Outlook)
+
+References (Literatur)
+
+Sanduhr Prinzip: 
+Allgemein (Leser abholen)
+Speziell( Leser mitnehmen und krassen Shit zeigen) Kapitel 3, Kern
+Allgemein (Leser die Erkenntnis zeigen und Ergebnis in allgemeinen Kontext stellen)
+
+
+
+
