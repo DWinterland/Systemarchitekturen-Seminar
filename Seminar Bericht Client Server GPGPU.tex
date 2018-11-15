@@ -380,7 +380,11 @@ Email: david.winterland@tu-bs.de}}
 % As a general rule, do not put math, special symbols or citations
 % in the abstract
 \begin{abstract}
-The abstract goes here.
+The abstract goes here, bjlad!
+The abstract goes here, bjlad!
+The abstract goes here, bjlad!
+The abstract goes here, bjlad!
+The abstract goes here, bjlad!
 \end{abstract}
 
 % no keywords
@@ -403,38 +407,50 @@ The abstract goes here.
 \section{Einleitung}
 % no \IEEEPARstart
 % „General Purpose“ Berechnungen auf GPUs (GPGPU
-Es gibt große Probleme, die bei der seriellen Berechnung langsam zu lösen sind. 
-Manche dieser Probleme lassen sich sehr gut parallelisieren, da sie aus vielen kleinen Teilproblemen bestehen. Ein Beispiel hierfür ist die Berechnung einer Disparitätenmatrix aus Stereobildern.
-Ein CPU besitzt aber nur eine begrenzte Anzahl von Kerne, um parallel zu Arbeiten. Eine GPU hingegen besitzt sehr viele Kerne, die auf Rechenoperationen ausgelegt sind. Diesen hohen Grad an Parallelität für Probleme abseits des Renderings zu nutzen, nennt sich “General Purpose“ Berechnungen auf GPUs (GPGPU).
-Compute Unified Device Architecture (CUDA) ist eine Bibiliothek die es erlaubt, auf NVIDIA GPUs eigenen, C ähnlichen Code auszuführen.
-Da aber auch die Anzahl der Kerne einer GPU begrenzt ist, ist es möglich für sehr große Probleme die Rechenleistung mehrerer GPUs zu verwenden.
-Dafür gibt es bereits eine Anwendung die einen GSoap Webservice verwendet, um die Berechnung der Disparitätenmatrix auf die einzelnen GPUs zu verteilen. Dadurch das jedem Bildpunkt ein xml-tag angefügt wird, ist die Übertragung sehr langsam.
-
-Deswegen ist das Ziel dieser Arbeit, die Serialisierung der Bilder mithilfe von nativen C Sockets durchzuführen, um den Overhead gegenüber dem Webservice zu veringern und einen tatsächlichen Geschwindigkeitsvorteil gegenüber der Standard CUDA Implementierung zu erreichen.
+Verteilte Systeme helfen bei der Berechnung von komplexen mathematischen Problemen. Durch eine verteilte Berechnung kann das Ergebnis schneller berechnet werden, somit ergeben sich zum Teil große Performance Verbesserungen. Ein allgemein bekanntes Beispiel für parallele Berechnungen ist das Multi-Threading in gängigen Prozessoren von PCs. Hier werden große Aufgaben, wie bspw. Berechnungen, auf mehrere CPU Kerne aufgeteilt, typischerweise besteht eine CPU aus 2 bis 6 Kernen. Bei der Berechnung von grafikintensiven Aufgaben, bspw. die Berechnung einer Disparitätenmatrix aus Stereobildern, bieten GPUs auf Grund der großen Anzahl an Kernen und der Möglichkeit diese parallel zu nutzen enorme Performance Vorteile gegenüber CPUs. Diesen hohen Grad an Parallelität für Probleme abseits des Renderings zu nutzen, nennt sich “General Purpose“ Berechnungen auf GPUs (GPGPU). Da aber auch die Anzahl der Kerne einer GPU begrenzt ist, ist es möglich für sehr große Probleme die Rechenleistung mehrerer GPUs, verteilt über das Netzwerk, zu verwenden. Für die Verteilung der Aufgaben im Netzwerk gibt es bereits eine Anwendung, die Performance Optimierung dieser Anwendung mit einem Ansatz der auf der Serialisierung mit nativen C-Client-Server-Sockets basiert ist Hauptbestandteil dieser Arbeit. Der Abschluss der Arbeit besteht aus einem Performance Vergleich der beiden Anwendungen bei der verteilten Berechnung von Disparitätenmatrizen aus Stereobildern.
 
 %https://www.genivia.com/doc/soapdoc2.html#tth_sEc11.11
-%
 %Algorithmus mit CUDA
 %SOAP hat Overhead
 %Motiv für C-Sockets: weniger Overhead \\
 %(Performance)-Vergleich mit aktuellem Soap Ansatz
  
 %\hfill November 24, 2018
-%\section{Verwandte Arbeiten}
 
 \section{Ansatz}
-Implementiert mit nativen C-Client-Server Sockets
-nachher Rechnerverbund um Aufgabe verteilt berechenen zu können.
-
-
-\subsection{Unterkapitel xy}
-Subsection text here.
-
+Compute Unified Device Architecture (CUDA) ist eine Bibliothek die es erlaubt, auf NVIDIA GPUs eigenen, C ähnlichen Code auszuführen. Um Rechenaufgaben auf mehrere GPUs im Netzwerk zu verteilen und für den Zeitpunkt der Berechnung ein lokales Rechencluster zu bilden gibt es bereits eine Anwendungen die einen GSoap Webservice verwendet, um die Berechnung der Disparitätenmatrix auf die einzelnen GPUs zu verteilen. Dadurch das jedem Bildpunkt ein xml-tag angefügt wird, ist die Übertragung sehr langsam. Im Vergleich zu einer lokalen GPU Berechnung ist die verteilte Berechnung durch den Overhead der Serialisierung langsamer. Der Ansatz dieser Arbeit ist es die Verteilung basierend auf C-Client-Server Stream-Sockets zu realisieren
 
 \section{Implementierung \& Validierung}
-HW Beschreibung: 1080GTX Titan, x Anzahl an Shader
-TCP Stream Sockets, Datenstruktur Beschreibung, welche Daten werden gesendet?
+Die verteilte GPGPU Berechnung der Disparitätenmatrixauf wird auf 6 identischen Alienware Aurora PCs ausgeführt, diese besitzen folgende Hardware:
+\begin{itemize}
+\item Intel i7 6400 Prozessor mit 4 GHz
+\item 8 GB Arbeitsspeicher
+\item NVidia GTX1080 Grafikkarte mit 2560 CUDA Kernen und 8 GB VRAM
+\item Alle Rechner sind mit Gigabit Ethernet verbunden
+\end{itemize}
 
+Bei der verteilten Anwendung werden die Bilder von der Anwendung Stereo-Lab zeilenweise aufgeteilt, auch der CUDA Algorithmus wird bereits von der Stereo-Lab Anwendung bereitgestellt. 
+Die Verteilung der Bilddaten für die Berechnung der Disparitätenmatrix basiert auf Client-Server Sockets. 
+Hierbei werden TCP-Stream Sockets verwendet und die Datenpakete mit folgenden Daten gefüllt:  
+
+\begin{itemize}
+\item \textbf{Bild Höhe} in absoluten Pixeln.
+\item \textbf{Bild Breite} in absoluten Pixeln.
+\item \textbf{Tau} Suchbereich des Berechnungsfensters.
+\item \textbf{Fenster Höhe} des Berechnungsfenster in absoluten Pixeln.
+\item \textbf{Fenster Breite} des Berechnungsfenster in absoluten Pixeln.
+\end{itemize}
+
+Der genaue Paketaufbau ist in Abbildung \ref{fig_client_server} zu sehen. Nach dem Initial Paket folgen noch zwei weitere Pakete. Die Größe der Pakete ist von der Pixelgröße des Bildes abhängig. Zur Berechnung der Disparität müssen sowohl das Linke als auch das Rechte Bild übertragen werden. Das berechnete Stereo Bild wird nach der Berechnung zum Client zurückgesendet. Die Bilder können auf beliebig viele Rechner verteilt werden. \\
+Im weiteren Verlauf dieser Arbeit erfolgt ein Vergleich zwischen den beiden Implementierungen: 
+CUDA WS mit gsoap und XML
+CUDA Socket
+\begin{figure}[!t]
+	\centering
+	\includegraphics[width=3.5in]{Datenformat.pdf} %2.5 ist Voreingestellt
+	\caption{Paketaufbau Client-Server-Sockets.}
+	\label{fig_client_server}
+\end{figure}
 
 % An example of a floating figure using the graphicx package.
 % Note that \label must occur AFTER (or within) \caption.
@@ -455,7 +471,7 @@ TCP Stream Sockets, Datenstruktur Beschreibung, welche Daten werden gesendet?
 % where an .eps filename suffix will be assumed under latex, 
 % and a .pdf suffix will be assumed for pdflatex; or what has been declared
 % via \DeclareGraphicsExtensions.
-\caption{Vergleich der Socket Implemtation gegenüber dem CUDA-Algorithmus auf einer Grafikkarte.}
+\caption{Vergleich der Socket Implementation gegenüber dem CUDA-Algorithmus auf einer Grafikkarte.}
 \label{fig_sim}
 \end{figure}
 
@@ -577,7 +593,7 @@ TCP Sockets aktuell verwendet, man könnte es auch mit UDP Sockets(Datagram Sock
 % (used to reserve space for the reference number labels box)
 \begin{thebibliography}{1}
 
-%\bibitem{IEEEhowto:kopka}
+%\bib{IEEEhowto:kopka}
 %H.~Kopka and P.~W. Daly, \emph{A Guide to \LaTeX}, 3rd~ed.\hskip 1em plus
 %  0.5em minus 0.4em\relax Harlow, England: Addison-Wesley, 1999.
 
