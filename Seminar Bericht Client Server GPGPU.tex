@@ -418,9 +418,10 @@ Verteilte Systeme helfen bei der Berechnung von komplexen mathematischen Problem
 %\hfill November 24, 2018
 
 \section{Ansatz}
-Compute Unified Device Architecture (CUDA) ist eine Bibliothek die es erlaubt, auf NVIDIA GPUs eigenen, C ähnlichen Code auszuführen. Um Rechenaufgaben auf mehrere GPUs im Netzwerk zu verteilen und für den Zeitpunkt der Berechnung ein lokales Rechencluster zu bilden gibt es bereits eine Anwendungen die einen GSoap Webservice verwendet, um die Berechnung der Disparitätenmatrix auf die einzelnen GPUs zu verteilen. Dadurch das jedem Bildpunkt ein xml-tag angefügt wird, ist die Übertragung sehr langsam. Im Vergleich zu einer lokalen GPU Berechnung ist die verteilte Berechnung durch den Overhead der Serialisierung langsamer. Der Ansatz dieser Arbeit ist es die Verteilung basierend auf C-Client-Server Stream-Sockets zu realisieren
+Compute Unified Device Architecture (CUDA) ist eine Bibliothek die es erlaubt, auf NVIDIA GPUs eigenen, C ähnlichen Code auszuführen. Um Rechenaufgaben auf mehrere GPUs im Netzwerk zu verteilen und für den Zeitpunkt der Berechnung ein lokales Rechencluster zu bilden, gibt es bereits eine Anwendungen die einen GSoap Webservice verwendet, um die Berechnung der Disparitätenmatrix auf die einzelnen GPUs zu verteilen. Dadurch dass jedem Bildpunkt ein xml-tag angefügt wird, ist die Übertragung sehr langsam. Im Vergleich zu einer lokalen GPU Berechnung ist die verteilte Berechnung durch den Overhead der Serialisierung langsamer. Der Ansatz dieser Arbeit ist es die Verteilung basierend auf C-Client-Server Stream-Sockets zu realisieren.
 
-\section{Implementierung \& Validierung}
+%\section{Implementierung \& Validierung}
+\section{Implementierung}
 Die verteilte GPGPU Berechnung der Disparitätenmatrixauf wird auf 6 identischen Alienware Aurora PCs ausgeführt, diese besitzen folgende Hardware:
 \begin{itemize}
 \item Intel i7 6400 Prozessor mit 4 GHz
@@ -429,9 +430,18 @@ Die verteilte GPGPU Berechnung der Disparitätenmatrixauf wird auf 6 identischen
 \item Alle Rechner sind mit Gigabit Ethernet verbunden
 \end{itemize}
 
+
+\begin{figure}[!t]
+	\centering
+	\includegraphics[width=3.5in]{Datenformat.pdf} %2.5 ist Voreingestellt
+	\caption{Paketaufbau Client-Server-Sockets.}
+	\label{fig_client_server}
+\end{figure}
+
 Bei der verteilten Anwendung werden die Bilder von der Anwendung Stereo-Lab zeilenweise aufgeteilt, auch der CUDA Algorithmus wird bereits von der Stereo-Lab Anwendung bereitgestellt. 
 Die Verteilung der Bilddaten für die Berechnung der Disparitätenmatrix basiert auf Client-Server Sockets. 
-Hierbei werden TCP-Stream Sockets verwendet und die Datenpakete mit folgenden Daten gefüllt:  
+Hierbei werden TCP-Stream Sockets verwendet.% und die Datenpakete mit folgenden Daten gefüllt:  
+Zuerst wird ein Datenpaket konstanter Größer versendet, welches folgende Informationen beinhaltet.
 
 \begin{itemize}
 \item \textbf{Bild Höhe} in absoluten Pixeln.
@@ -441,16 +451,37 @@ Hierbei werden TCP-Stream Sockets verwendet und die Datenpakete mit folgenden Da
 \item \textbf{Fenster Breite} des Berechnungsfenster in absoluten Pixeln.
 \end{itemize}
 
-Der genaue Paketaufbau ist in Abbildung \ref{fig_client_server} zu sehen. Nach dem Initial Paket folgen noch zwei weitere Pakete. Die Größe der Pakete ist von der Pixelgröße des Bildes abhängig. Zur Berechnung der Disparität müssen sowohl das Linke als auch das Rechte Bild übertragen werden. Das berechnete Stereo Bild wird nach der Berechnung zum Client zurückgesendet. Die Bilder können auf beliebig viele Rechner verteilt werden. \\
-Im weiteren Verlauf dieser Arbeit erfolgt ein Vergleich zwischen den beiden Implementierungen: 
-CUDA WS mit gsoap und XML
-CUDA Socket
+
+Der genaue Paketaufbau ist in Abbildung \ref{fig_client_server} zu sehen. Nach dem Initial Paket folgen noch zwei weitere Pakete. Diese beinhalten jeweils den Teil des linken bzw. rechten Bildes, welches die Empfänger für die Berechnung nutzen soll. Die Größe der Pakete ist von der Pixelbreite des Bildes und der übertragenen Zeilenanzahl abhängig. Wichtig ist hierbei, dass die Zeilen immer vollständig übertragen werden, da sonst relevante Information für die Berechnung fehlen.%Zur Berechnung der Disparität müssen sowohl das Linke als auch das Rechte Bild übertragen werden.
+Auf der Server Seite wird nun der CUDA-Algorithmus für das Teilbild ausgeführt. Das berechnete Stereo Bild sowie die Validierungsmatrix werden nach der Berechnung zum Client zurückgesendet. Dort werden die Teilbilder zusammengesetzt. Diese Vorgehensweise erlaubt es, die Bilder auf eine belibiege Anzahl an Rechnern zu verteilen, die aber nicht größer ist, als die Anzahl an Zeilen der beiden Input-Bilder. % Bilder können auf beliebig viele Rechner verteilt werden. \\%Stimmt nicht, ist auf die Anzahl Zeilen begrenzt
+
+
 \begin{figure}[!t]
 	\centering
-	\includegraphics[width=3.5in]{Datenformat.pdf} %2.5 ist Voreingestellt
-	\caption{Paketaufbau Client-Server-Sockets.}
-	\label{fig_client_server}
+	\includegraphics[width=3.5in]{SocketvsCUDA_bunt_3.pdf}
+	% where an .eps filename suffix will be assumed under latex, 
+	% and a .pdf suffix will be assumed for pdflatex; or what has been declared
+	% via \DeclareGraphicsExtensions.
+	\caption{Vergleich der Socket Implementation gegenüber dem CUDA-Algorithmus auf einer Grafikkarte.}
+	\label{fig_socket_cuda}
 \end{figure}
+
+\section{Validierung}
+Im weiteren Verlauf dieser Arbeit erfolgt ein Vergleich zwischen den beiden Implementierungen: 
+Beide Implementierung, sowohl die vorliegende, als auch die in dieser Arbeit vorgestellte, wurde beide jeweils lokal, verteilt auf drei und auf sechs Rechnern getestet. Dabei wurde für jede Testreihe der gleiche Algorithmus 3 mal ausgeführt und der Mittelwert gebildet um eine bessere Vergleichbarkeit zu erreichen. Zum Vergleich wurde zusätzlich der CUDA Algorithmus ohne Serialisierung auf der lokalen Grafikkarte getestet. 
+
+Es wurde für alle Tests das Stereobild eines Elefanten verwendet mit der Fenstergröße 7x7 bzw. 15x15 Pixel.
+
+Für die kleinere Fenstergröße ist die Socket-Implementierung langsamer, als die lokale Ausführung (Siehe Abbildung \ref{fig_socket_cuda}). Das liegt daran, dass die Teilprobleme durch die Anzahl der Kerne einer Grafikkarte überdeckt werden. Das sieht man auch daran, dass mit steigender Rechner Anzahl, die benötigte Zeit nicht sinkt. Somit kann ermittelt werden, dass die Serialisierung und Deserialisierung für dieses Bild ca. 20 ms benötigt.
+
+Für die größere Fenstergröße kann man mit steigender Rechneranzahl einen Performance-Gewinn gegenüber der lokalen Ausführung beobachten. So ist die Socketimplementierung mit sechs parallelen Rechnern um mehr als 100 ms schneller als die lokale Alternative.
+
+Der Vergleich zur CUDA Implemtierung mit GSoap und XML fällt noch deutlicher aus. Die Ergebnisse sind in Abbildung \ref{fig_socket_ws} aufgetragen. Diese Variante profitiert zwar sichtbar von der Verwendung multipler Grafikarten, die Serialisierung mit Hilfe von XML benötigt ca. die 10-fache Zeit des eigentlichen CUDA-Algorithmus. 
+
+
+%CUDA WS mit GSoap und XML
+%CUDA Socket
+
 
 % An example of a floating figure using the graphicx package.
 % Note that \label must occur AFTER (or within) \caption.
@@ -465,21 +496,13 @@ CUDA Socket
 % option should be used if it is desired that the figures are to be
 % displayed while in draft mode.
 %
-\begin{figure}[!t]
-\centering
-\includegraphics[width=3.5in]{SocketvsCUDA_bunt_3.pdf}
-% where an .eps filename suffix will be assumed under latex, 
-% and a .pdf suffix will be assumed for pdflatex; or what has been declared
-% via \DeclareGraphicsExtensions.
-\caption{Vergleich der Socket Implementation gegenüber dem CUDA-Algorithmus auf einer Grafikkarte.}
-\label{fig_sim}
-\end{figure}
+
 
 \begin{figure}[!t]
 	\centering
 	\includegraphics[width=3.5in]{SocketvsWS_bunt_3.pdf} %2.5 ist Voreingestellt
 	\caption{Vergleich der Socket Implementation gegenüber der Webservice Variante.}
-	\label{fig_sim}
+	\label{fig_socket_ws}
 \end{figure}
 
 % Note that the IEEE typically puts floats only at the top, even when this
@@ -557,8 +580,11 @@ CUDA Socket
 
 
 \section{Zusammenfassung und weitere Arbeiten}
-Evaluation welches Ergebnis schneller war und warum. 
-TCP Sockets aktuell verwendet, man könnte es auch mit UDP Sockets(Datagram Sockets) machen. Oder eine andere Midlleware bspw. JAVA RMI
+Die Evaluation hat gezeigt, dass die Socketvariante schnelle ist als die lokale, sobald die Anzahl an Teilproblemen groß genug ist. Außerdem ist die Serialisierung mit Sockets wesentlich effizienter als mittels GSoap und XML.
+
+Diese Arbeit hat also gezeigt, dass das zusammenschließen mehrerer Grafikkarten für die Berechnung großer Probleme wesentlich schneller sein kann. Gleichzeitig liefert diese Arbeit eine Lösung für die verteilte Berechnung von Stereobilder mit Hilfe von Stream-Sockets die wesentlich schneller ist, als die Konkurrenz. % klingt doof, ist aber so. Also eigntlich wusste ich nur nicht, was ich noch schreiben soll.
+%Evaluation welches Ergebnis schneller war und warum. 
+%TCP Sockets aktuell verwendet, man könnte es auch mit UDP Sockets(Datagram Sockets) machen. Oder eine andere Midlleware bspw. JAVA RMI
 
 
 
